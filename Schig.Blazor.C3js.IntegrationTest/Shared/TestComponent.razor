@@ -1,0 +1,17 @@
+﻿<input @bind="Text" @oninput="OnInputHandler"/>
+
+@code {
+    [Parameter]
+    public string Text { get; set; }
+    
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnInputCallback { get; set; }
+
+    private void OnInputHandler(ChangeEventArgs args)
+    {
+        OnInputCallback.InvokeAsync(Id);
+    }
+}

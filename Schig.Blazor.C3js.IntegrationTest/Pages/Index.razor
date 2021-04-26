@@ -1,0 +1,307 @@
+﻿@page "/"
+
+<h1>Chart Test</h1>
+
+<table style="width: 100%;table-layout:fixed">
+    <tr>
+        <td style="width:50%;">
+            <button @onclick="LoadChart1">Reload</button>
+            <C3jsChart Configuration="@config1" ChartId="1" OnChartClickCallback="@OnClickHandler1"></C3jsChart>
+        </td>
+        <td style="width:50%;">
+            <button @onclick="LoadChart2">Reload</button>
+            <C3jsChart Configuration="@config2" ChartId="2" OnChartClickCallback="@OnClickHandler2"></C3jsChart>
+        </td>
+    </tr>
+    <tr>
+        <td style="width:50%;">
+            <button @onclick="LoadChart3">Reload</button>
+            <C3jsChart Configuration="@config3" ChartId="3" OnChartClickCallback="@OnClickHandler3"></C3jsChart>
+        </td>
+        <td style="width:50%;">
+            <button @onclick="LoadChart4">Reload</button>
+            <C3jsChart Configuration="@config4" ChartId="4" OnChartClickCallback="@OnClickHandler4"></C3jsChart>
+        </td>
+    </tr>
+</table>
+
+<div>
+    <span><b>ChartId: </b></span><span><b>@chartClickData?.ChartId</b></span>
+    <br />
+    <span>Id: </span><span>@chartClickData?.Id</span>
+    <br />
+    <span>Index: </span><span>@chartClickData?.Index</span>
+    <br />
+    <span>Name: </span><span>@chartClickData?.Name</span>
+    <br />
+    <span>Value: </span><span>@chartClickData?.Value</span>
+</div>
+
+<input @bind="text1" @bind:event="oninput" />
+<input @bind="text2" @bind:event="oninput" />
+<input @bind="text3" @bind:event="oninput" />
+<br />
+<input @bind="testComponentId" />
+
+<TestComponent Text="@text1" Id="1" OnInputCallback="@OnTextInput"></TestComponent>
+<TestComponent Text="@text2" Id="2" OnInputCallback="@OnTextInput"></TestComponent>
+<TestComponent Text="@text3" Id="3" OnInputCallback="@OnTextInput"></TestComponent>
+
+@code {
+    private string text1;
+    private string text2;
+    private string text3;
+
+    private ChartClickData chartClickData;
+
+    private ChartConfiguration config1;
+    private ChartConfiguration config2;
+    private ChartConfiguration config3;
+    private ChartConfiguration config4;
+
+    private string testComponentId;
+    private void OnTextInput(string id)
+    {
+        testComponentId = id;
+    }
+
+    protected override void OnInitialized()
+    {
+        config1 = GenerateDataChart1();
+        config2 = GenerateDataChart2();
+        config3 = GenerateDataChart3();
+        config4 = GenerateDataChart4();
+    }
+
+    private void LoadChart1()
+    {
+        config1 = GenerateDataChart1();
+    }
+
+    private void LoadChart2()
+    {
+        config2 = GenerateDataChart2();
+    }
+
+    private void LoadChart3()
+    {
+        config3 = GenerateDataChart3();
+    }
+
+    private void LoadChart4()
+    {
+        config4 = GenerateDataChart4();
+    }
+
+    private ChartConfiguration GenerateDataChart1()
+    {
+        ChartData data = new ChartData();
+
+        int maxNumberOfValues = 10000;
+        int[] randomValues1 = new int[maxNumberOfValues];
+        Random random = new Random();
+        for (int i = 0; i < maxNumberOfValues; i++)
+        {
+            randomValues1[i] = random.Next(1, 21) + random.Next(1, 21) + random.Next(1, 21);
+        }
+
+        (int, int)[] xyValues = randomValues1.GroupBy(v => v)
+            .Select(g => (g.Key, g.Count()))
+            .OrderBy(r => r.Key)
+            .ToArray();
+
+        int[] yValues = xyValues.Select(v => v.Item2).ToArray();
+        int[] xValues = xyValues.Select(v => v.Item1).ToArray();
+
+        data.X = "x";
+        data.Columns = new ColumnsCollection[]
+        {
+            new ColumnsCollection()
+            {
+                Key = "x",
+                Values = xValues.Select(v => (object)v).ToArray()
+            },
+            new ColumnsCollection()
+            {
+                Key = "3x 6-sided die rolls",
+                Values = yValues.Select(v => (object)v).ToArray()
+            }
+        };
+
+        data.Type = "bar";
+
+        return new ChartConfiguration(data);
+    }
+
+    private ChartConfiguration GenerateDataChart2()
+    {
+        ChartData data = new ChartData();
+
+        data.X = "x";
+
+        int maxNumberOfValues = 100;
+        object[] randomValues1 = new object[maxNumberOfValues];
+        object[] randomValues2 = new object[maxNumberOfValues];
+        object[] dates = new object[maxNumberOfValues];
+        Random random = new Random();
+        for (int i = 0; i < maxNumberOfValues; i++)
+        {
+            randomValues1[i] = random.Next(10, 70);
+            randomValues2[i] = random.Next(100, 200);
+            dates[i] = DateTime.Now.AddDays(-maxNumberOfValues).AddDays(i).ToString("yyyy-MM-dd");
+        }
+
+        data.Columns = new ColumnsCollection[]
+        {
+            new ColumnsCollection()
+            {
+                Key = "x",
+                Values = dates
+            },
+            new ColumnsCollection()
+            {
+                Key = "Random numbers 1",
+                Values = randomValues1
+            },
+            new ColumnsCollection()
+            {
+                Key = "Random numbers 2",
+                Values = randomValues2
+            }
+        };
+        data.Type = "line";
+
+        ChartAxis axis = new ChartAxis()
+        {
+            X = new XAxisOptions()
+            {
+                Type = "timeseries",
+                Tick = new XTickOptions()
+                {
+                    Format = "%Y-%m-%d",
+                    IsCentered = true
+                }
+            }
+        };
+
+        return new ChartConfiguration(data, axis);
+    }
+
+    private ChartConfiguration GenerateDataChart3()
+    {
+        ChartData data = new ChartData();
+
+        Random random = new Random();
+
+        int objects = random.Next(4, 8);
+        data.DataObjects = new object[objects];
+        for(int i = 0; i < objects; i++)
+        {
+            int upload = random.Next(0, 400);
+            int download = random.Next(0, 400);
+            data.DataObjects[i] = new { Name = $"www.site{i}.com", upload = upload, download = download, total = upload + download };
+        }
+
+        data.Keys = new Keys()
+        {
+            X = "name",
+            Value = new string[] { "upload", "download" }
+        };
+
+        data.Type = "bar";
+
+        data.Groups = new string[][]
+        {
+            new string[] { "upload", "download" }
+        };
+
+        ChartAxis axis = new ChartAxis()
+        {
+            X = new XAxisOptions()
+            {
+                Type = "category"
+            }
+        };
+
+        return new ChartConfiguration(data, axis);
+    }
+
+    private ChartConfiguration GenerateDataChart4()
+    {
+        ChartData data = new ChartData();
+
+        data.X = "x";
+
+        int maxNumberOfValues = 700;
+        object[] randomValues1 = new object[maxNumberOfValues];
+        object[] randomValues2 = new object[maxNumberOfValues];
+        object[] dates = new object[maxNumberOfValues];
+        Random random = new Random();
+        for (int i = 0; i < maxNumberOfValues; i++)
+        {
+            randomValues1[i] = random.Next(10, 70);
+            randomValues2[i] = random.Next(100, 200);
+            dates[i] = DateTime.Now.AddDays(-maxNumberOfValues).AddDays(i).ToString("yyyy-MM-dd");
+        }
+
+        data.Columns = new ColumnsCollection[]
+        {
+            new ColumnsCollection()
+            {
+                Key = "x",
+                Values = dates
+            },
+            new ColumnsCollection()
+            {
+                Key = "Random numbers 1",
+                Values = randomValues1
+            },
+            new ColumnsCollection()
+            {
+                Key = "Random numbers 2",
+                Values = randomValues2
+            }
+        };
+        data.Type = "line";
+
+        SubchartOptions subchart = new()
+        {
+            Show = true
+        };
+
+        ChartAxis axis = new ChartAxis()
+        {
+            X = new XAxisOptions()
+            {
+                Type = "timeseries",
+                Tick = new XTickOptions()
+                {
+                    Format = "%Y-%m-%d",
+                    IsCentered = true
+                }
+            }
+        };
+
+        return new ChartConfiguration(data, axis, subchart: subchart);
+    }
+
+    private void OnClickHandler1(ChartClickData data)
+    {
+        chartClickData = data;
+    }
+
+    private void OnClickHandler2(ChartClickData data)
+    {
+        chartClickData = data;
+    }
+
+    private void OnClickHandler3(ChartClickData data)
+    {
+        chartClickData = data;
+    }
+
+    private void OnClickHandler4(ChartClickData data)
+    {
+        chartClickData = data;
+    }
+}
