@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Michael Goll</Authors>
-    <Version>0.0.1-preview001</Version>
+    <Version>0.0.1-preview002</Version>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/SCHIGmbH/Blazor.C3js</RepositoryUrl>
     <PackageTags>blazor, c3js, charts</PackageTags>
